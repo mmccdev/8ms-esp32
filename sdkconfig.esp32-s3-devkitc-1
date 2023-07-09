@@ -1547,6 +1547,18 @@ CONFIG_I2C_MS_TO_WAIT=200
 # end of Bus Options
 
 #
+# EPever Modbus Configuration
+#
+CONFIG_MB_UART_PORT_NUM=1
+CONFIG_MB_UART_BAUD_RATE=115200
+CONFIG_MB_UART_RXD=5
+CONFIG_MB_UART_TXD=4
+CONFIG_MB_UART_RTS=-1
+CONFIG_MB_COMM_MODE_RTU=y
+# CONFIG_MB_COMM_MODE_ASCII is not set
+# end of EPever Modbus Configuration
+
+#
 # LVGL configuration
 #
 # CONFIG_LV_ATTRIBUTE_FAST_MEM_USE_IRAM is not set
