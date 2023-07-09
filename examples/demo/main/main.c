@@ -26,7 +26,7 @@
 #include "qmsd_screen_config.h"
 #include "qmsd_version.h"
 #include "qmsd_mod.h"
-#include "custom.h"
+
 
 /*********************
  *      DEFINES
@@ -52,21 +52,19 @@ void qmsd_ui_init_cb(void)
     qmsd_ui_entry();
 }
 
+extern void qmsd_board_ext_init(void);
+
 void app_main(void)
 {
-    ESP_LOGI(TAG, "version: %s", QMSD_VERSION);
+    printf("version: %s\n", QMSD_VERSION);
     qmsd_storage_init();
 
     qmsd_main_msgque_init(16);
     esp_event_loop_create_default();
     qmsd_mod_init();
 
-    /*
-     * init custom code
-     */
-    qmsd_custom_init();
-
     qmsd_set_init_cb(qmsd_ui_init_cb);
+	qmsd_board_ext_init();
 
     qmsd_gui_init(0, DIR_INPUT);
     qmsd_control_init();

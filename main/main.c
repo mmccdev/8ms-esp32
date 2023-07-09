@@ -52,7 +52,7 @@ void qmsd_ui_init_cb(void)
     qmsd_ui_entry();
 }
 
-extern void qmsd_test_init(void);
+extern void qmsd_board_ext_init(void);
 
 void app_main(void)
 {
@@ -63,9 +63,9 @@ void app_main(void)
     esp_event_loop_create_default();
     qmsd_mod_init();
 
-    qmsd_test_init();
     qmsd_set_init_cb(qmsd_ui_init_cb);
+	qmsd_board_ext_init();
 
-    qmsd_gui_init(0,DIR_INPUT);
+    qmsd_gui_init(0, DIR_INPUT);
     qmsd_control_init();
 }
