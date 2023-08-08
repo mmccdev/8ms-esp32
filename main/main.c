@@ -25,7 +25,8 @@
 #include "qmsd_msgque.h"
 #include "qmsd_screen_config.h"
 #include "qmsd_version.h"
-#include "qmsd_mod.h"
+#include "qmsd_api.h"
+#include "qmsd_ctrl.h"
 
 
 /*********************
@@ -52,7 +53,34 @@ void qmsd_ui_init_cb(void)
     qmsd_ui_entry();
 }
 
-extern void qmsd_board_ext_init(void);
+extern void qmsd_test_init(void);
+
+static int __qmsd_got_ip_func(struct qmsd_notifier_block *nb, unsigned int action, void *data)
+{
+    if(action == QMSD_WIFI_STA_GOT_IP)
+    {
+        wifi_ap_record_t ap_info;
+        esp_wifi_sta_get_ap_info(&ap_info);
+
+        cJSON *root;
+        cJSON *attr;
+        root = cJSON_CreateObject();
+        attr = cJSON_CreateObject();
+        cJSON_AddStringToObject(root, "wid", "screen_wifi/label_net");
+        cJSON_AddStringToObject(root, "cmd", QMSD_CTRL_CMD_SET_NAME);
+        cJSON_AddStringToObject(attr, "action", "set_text");
+        cJSON_AddStringToObject(attr, "text", "Connected!");
+        cJSON_AddItemToObject(root, "attr", attr);
+        char *str = cJSON_PrintUnformatted(root);
+        qmsd_ctrl_str(str);
+        free(str);
+    }
+    return 0;
+}
+
+static struct qmsd_notifier_block got_ip_event = {
+    .notifier_call = __qmsd_got_ip_func,
+};
 
 void app_main(void)
 {
@@ -63,9 +91,11 @@ void app_main(void)
     esp_event_loop_create_default();
     qmsd_mod_init();
 
+    qmsd_test_init();
     qmsd_set_init_cb(qmsd_ui_init_cb);
-	qmsd_board_ext_init();
-
-    qmsd_gui_init(0, DIR_INPUT);
+    qmsd_notifier_register(&got_ip_event);
+    qmsd_gui_init(0,DIR_INPUT);
+    
+    qmsd_wifi_init(false);
     qmsd_control_init();
 }

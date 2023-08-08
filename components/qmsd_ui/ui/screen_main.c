@@ -2,81 +2,92 @@
 #include "qmsd_internal_ui_cb.h"
 
 lv_obj_t* screen_main;
-lv_obj_t* screen_main_label_1;
-lv_obj_t* screen_main_button_1;
-lv_obj_t* screen_main_button_1_label;
+lv_obj_t* image_base;
+lv_obj_t* tileview_2093;
+lv_obj_t* cont_link_f61c;
 
-static int screen_main_button_1_create(void)
+
+    
+void qmsd_image_base_create()
 {
-    screen_main_button_1 = lv_btn_create(screen_main, NULL);
-    if (screen_main_button_1) {
-        screen_main_button_1_label = lv_label_create(screen_main_button_1, NULL);
-        if (screen_main_button_1_label) {
-            lv_label_set_text(screen_main_button_1_label, qmsd_lang_get_trans("main_button_1", "BTNM"));
-        } else {
-            lv_obj_del(screen_main_button_1);
-            screen_main_button_1 = NULL;
-            return -1;
-        }
-
-        lv_obj_align(screen_main_button_1, NULL, LV_ALIGN_IN_TOP_LEFT, 0, 0);
-        lv_obj_set_event_cb(screen_main_button_1, __qmsd_main_button_1_cb);
-        qmsd_obj_set_id(screen_main_button_1,"screen_main_button_1");
-        printf("origin:%p,id:%s\n",screen_main_button_1,screen_main_button_1->qmsd_id);
-        return 0;
-    }
-
-    return -1;
+    image_base = lv_img_create(screen_main, NULL);
+#ifdef BLOCKLY_image_base_EVENT_HANDLER
+    lv_obj_set_event_cb(image_base, __qmsd_image_base_cb);
+#endif
+    lv_obj_set_pos(image_base, 0, 0);
+    qmsd_obj_set_id(image_base,"image_base");
 }
-
-static int screen_main_label_1_create(void)
+    void qmsd_tileview_2093_create()
 {
-    screen_main_label_1 = lv_label_create(screen_main, NULL);
-    if (screen_main_label_1) {
-        lv_obj_align(screen_main_label_1, NULL, LV_ALIGN_CENTER, 0, 0);
-        qmsd_obj_set_id(screen_main_label_1,"screen_main_label_1");
-        return 0;
-    }
-
-    return -1;
+    tileview_2093 = lv_tileview_create(screen_main, NULL);
+    lv_obj_set_size(tileview_2093, 480, 480);
+    static lv_point_t tileview_2093_valid_pos[] = {{0,0},{1,0}};
+    lv_tileview_set_valid_positions(tileview_2093, tileview_2093_valid_pos, 2);
+    lv_tileview_set_edge_flash(tileview_2093, true);
+	lv_obj_set_pos(tileview_2093, 0, 0);
+    main_tile_1_build();
+    main_tile_2_build();
+    lv_obj_set_style_local_bg_opa(tileview_2093,LV_TILEVIEW_PART_SCROLLBAR,LV_STATE_DEFAULT,0);
+    lv_tileview_set_tile_act(tileview_2093 , 0 , 0 , LV_ANIM_ON);
+    qmsd_obj_set_id(tileview_2093,"tileview_2093");
+}
+    void qmsd_cont_link_f61c_create()
+{
+    cont_top_build(screen_main);
+    cont_link_f61c = cont_top;
+    lv_obj_set_parent(cont_link_f61c,screen_main);
+    lv_obj_set_pos(cont_link_f61c,0,-230);
+    lv_obj_set_size(cont_link_f61c, 480, 280);
 }
 
 static void screen_main_qmsd_cb(lv_obj_t * obj, lv_event_t event, void *data)
+{/*
+    char *trans;
+    lv_obj_qmsd_call_cb(main_tile_1, LV_EVENT_SCREEN_LOAD , NULL);
+    lv_obj_qmsd_call_cb(main_tile_2, LV_EVENT_SCREEN_LOAD , NULL);
+*/
+#ifdef BLOCKLY_screen_main_SCREEN_INIT
+    __qmsd_screen_main_init();
+#endif
+}
+
+static void screen_main_del_cb(lv_obj_t* obj,lv_event_t event)
 {
-    if (event == LV_EVENT_SCREEN_LOAD) {
-        if (screen_main_button_1_label) {
-            lv_label_set_text(screen_main_button_1_label, qmsd_lang_get_trans("main_button_1", "BTNM"));
-        }
+    if(event == LV_EVENT_DELETE)
+    {
+        screen_main=NULL;
+        qmsd_screen_remove("screen_main");
     }
 }
 
-static void screen_main_qr_1_create()
+void screen_main_build(void)
 {
-    char *url="https://8ms.xyz";
-    lv_obj_t* obj=lv_qrcode_create(screen_main,100,LV_COLOR_YELLOW,LV_COLOR_BLUE);
-    lv_qrcode_update(obj,url,strlen(url));
-    lv_obj_align(obj,NULL,LV_ALIGN_IN_BOTTOM_MID,0,0);
-    qmsd_obj_set_id(obj,"qr_1");
-}
-
-int screen_main_build(void)
-{
+    if(screen_main) return;
     screen_main = lv_obj_create(NULL, NULL);
-    if (screen_main) {
-        lv_obj_set_style_local_bg_color(screen_main,LV_OBJ_PART_MAIN,LV_STATE_DEFAULT,LV_COLOR_BLACK);
+    lv_obj_qmsd_set_cb(screen_main, screen_main_qmsd_cb);
+    lv_obj_set_style_local_bg_color(screen_main,LV_OBJ_PART_MAIN,LV_STATE_DEFAULT,LV_COLOR_MAKE(0x00, 0x00, 0x00));
 
-        screen_main_button_1_create();
-        lv_obj_qmsd_set_cb(screen_main, screen_main_qmsd_cb);
-        qmsd_screen_register(screen_main,"screen_main");
-        qmsd_call_ui_event_cb("main", screen_main, LV_EVENT_SCREEN_CREATE);
+    qmsd_image_base_create();
+    qmsd_tileview_2093_create();
+    qmsd_cont_link_f61c_create();
+    lv_obj_set_event_cb(screen_main,screen_main_del_cb);
+    qmsd_screen_register(screen_main,"screen_main");
+}
+
+void screen_main_show(void)
+{
+    if(!screen_main)
+    {
+        screen_main_build();
     }
-
-    return -1;
+    lv_scr_load(screen_main);
 }
 
 void screen_main_delete(void)
 {
-    if (screen_main) {
+    if(screen_main)
+    {
         lv_obj_del(screen_main);
+        screen_main = NULL;
     }
 }
